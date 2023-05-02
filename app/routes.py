@@ -66,3 +66,58 @@ def read_all_planets():
             "size": planet.size
         })
     return jsonify(planets_response)
+
+def validate_planet(planet_id): 
+    try: 
+        planet_id = int(planet_id)
+    except: 
+        abort(make_response({"message":f"planet {planet_id} invalid"}, 400))
+        
+    planet = Planet.query.get(planet_id) 
+
+    if not planet: 
+        abort(make_response({"message":f"planet {planet_id} not found"}, 404))
+
+    return planet
+        
+@planet_bp.route("/<planet_id>", methods=["GET"])
+def read_one_planet(planet_id):
+    planet = validate_planet(planet_id)
+    return {
+        "id": planet.id,
+        "name": planet.name,
+        "description": planet.description,
+        "size": planet.size,
+    }
+
+@planet_bp.route("/<planet_id>", methods=["PUT"])
+def update_planet(planet_id): 
+    planet = validate_planet(planet_id)
+    request_body = request.get_json()
+
+    planet.name = request_body["name"]
+    planet.description = request_body["description"]
+    planet.size = request_body["size"]
+
+    db.session.commit()
+
+    return make_response(f"planet #{planet.id} successfully updated")
+
+
+@planet_bp.route("/<planet_id>", methods=["DELETE"])
+def delete_planet(planet_id): 
+    planet = validate_planet(planet_id)
+
+    db.session.delete(planet)
+    db.session.commit()
+
+    return make_response(f"planet #{planet.id} successfully deleted")
+
+
+# What's the difference between returning make_response and not returning it? 
+    # Make response returns HTML and not JSON
+    # can be used as confirmation that something was deleted or returned back to us
+
+# use commit() for when we are updating/making changes to the data
+
+# db mgrate and flask upgrade commits everything that's been added to the model to the database table
