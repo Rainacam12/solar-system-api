@@ -54,8 +54,16 @@ def handle_planets():
 @planet_bp.route("", methods=['GET'])
 def read_all_planets():
     planets_response = []
-    # query.all gets planet from db
-    planets = Planet.query.all()
+
+    planet_name_query = request.args.get("name")
+    planet_description_query = request.args.get("description")
+
+    if planet_name_query:
+        planets = Planet.query.filter_by(name=planet_name_query)
+    elif planet_description_query: 
+        planets = Planet.query.filter_by(description=planet_description_query)
+    else: 
+        planets = Planet.query.all()
 
     # add each planet to the response body
     for planet in planets:

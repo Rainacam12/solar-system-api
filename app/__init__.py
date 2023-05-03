@@ -1,17 +1,34 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from dotenv import load_dotenv
+import os
 
 # give us access to db ops
 db = SQLAlchemy()
 migrate = Migrate()
 
-def create_app():
+load_dotenv()
+
+def create_app(test_config=None):
     app = Flask(__name__)
 
+    # if we're not in our testing environment
+    if not test_config: 
     # set up the database
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:postgres@localhost:5432/solar_system_development'
+        # development environment confirguration
+        app.config['SQLAlchemy_TRACK_MODIFICATIONS'] = False
+        # gets the variable and its value from .env
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    else: 
+        # test environment configuration 
+        # if there is a test config passed in,
+        # this means we're trying to test the app,
+        # confirgures the test settings
+        app.config["TESTING"] = True
+        app.config['SQLAlchemy_TRACK_MODIFICATIONS'] = False
+        # "which database am i looking at" = specify which database we're pointing to
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_TEST_DATABASE_URI')
 
     # connect the db and migrate to our flask app
     db.init_app(app)
