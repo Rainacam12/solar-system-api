@@ -17,7 +17,7 @@ def create_app(test_config=None):
     if not test_config: 
     # set up the database
         # development environment confirguration
-        app.config['SQLAlchemy_TRACK_MODIFICATIONS'] = False
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         # gets the variable and its value from .env
         app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
     else: 
@@ -26,7 +26,7 @@ def create_app(test_config=None):
         # this means we're trying to test the app,
         # confirgures the test settings
         app.config["TESTING"] = True
-        app.config['SQLAlchemy_TRACK_MODIFICATIONS'] = False
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         # "which database am i looking at" = specify which database we're pointing to
         app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_TEST_DATABASE_URI')
 
