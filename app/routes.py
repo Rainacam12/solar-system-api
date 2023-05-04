@@ -129,3 +129,4 @@ def delete_planet(planet_id):
 # use commit() for when we are updating/making changes to the data
 
 # db mgrate and flask upgrade commits everything that's been added to the model to the database table
+# minor change comment
