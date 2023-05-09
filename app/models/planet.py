@@ -6,6 +6,7 @@ class Planet(db.Model):
     name = db.Column(db.String)
     description = db.Column(db.String)
     size = db.Column(db.Integer)
+    moons = db.relationship("Moon", back_populates="planet")
 
     @classmethod
     # in class methods, cls must come first. it's a reference to the class itself

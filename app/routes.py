@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from .models.planet import Planet
+from .models.moon import Moon
 from app import db
 
 
@@ -18,6 +19,7 @@ from app import db
 # ]
 
 planet_bp = Blueprint("planets", __name__, url_prefix="/planets")
+moon_bp = Blueprint("moons", __name__, url_prefix="/moons" )
 
 # create endpoint to get resources
 # @planet_bp.route("", methods=["GET"])
@@ -110,7 +112,31 @@ def delete_planet(planet_id):
 
     return make_response(f"planet #{planet.id} successfully deleted")
 
+# moons Routes
+@moon_bp.route("", methods=['POST'])
+# define a route for creating a crystal resource
+def create_moon():
+    request_body = request.get_json()
+    
+    new_moon = Moon(
+        name=request_body["name"]
+    )
+    
+    db.session.add(new_moon)
+    db.session.commit()
+    
+    return jsonify(f"Moon {new_moon.name} successfully created!"), 201
 
+@moon_bp.route("", methods=['GET'])
+def read_all_moons():
+    moons = Moon.query.all()
+
+    moons_response = []
+
+    for moon in moons:
+        moons_response.append({"name": moon.name, "id": moon.id})
+
+    return jsonify(moons_response)
 # What's the difference between returning make_response and not returning it? 
     # Make response returns HTML and not JSON
     # can be used as confirmation that something was deleted or returned back to us
@@ -118,4 +144,3 @@ def delete_planet(planet_id):
 # use commit() for when we are updating/making changes to the data
 
 # db mgrate and flask upgrade commits everything that's been added to the model to the database table
-# minor change comment
