@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, abort, make_response, request
-from .models.planet import Planet
-from .models.moon import Moon
+from app.models.planet import Planet
+from app.models.moon import Moon
 from app import db
 
 
@@ -46,7 +46,7 @@ def validate_model(cls, model_id):
     model = cls.query.get(model_id) 
 
     if not model: 
-        abort(make_response({f"message":"{class.__name__} {model_id} not found"}, 404))
+        abort(make_response({f"message":f"{cls.__name__.lower()} {model_id} not found"}, 404))
 
     return model
 
@@ -112,6 +112,32 @@ def delete_planet(planet_id):
 
     return make_response(f"planet #{planet.id} successfully deleted")
 
+# Planet's Nested Routes: Create Moon on Planet ID
+@planet_bp.route("/<planet_id>/moons", methods=["POST"])
+def create_moon_by_id(planet_id): 
+    planet = validate_model(Planet, planet_id)
+    request_body = request.get_json()
+
+    new_moon = Moon(
+        name=request_body["name"],
+        planet=planet
+    )
+
+    db.session.add(new_moon)
+    db.session.commit()
+
+    return jsonify(f"Moon {new_moon.name}")
+
+@planet_bp.route("/<planet_id>/moons", methods=["GET"])
+def get_all_moons_with_id(planet_id): 
+    planet = validate_model(Planet, planet_id)
+
+    moon_response = []
+    for moon in planet.moons: 
+        moon_response.append(moon.to_dict())
+    return jsonify(moon_response), 200
+
+
 # moons Routes
 @moon_bp.route("", methods=['POST'])
 # define a route for creating a crystal resource
@@ -137,10 +163,4 @@ def read_all_moons():
         moons_response.append({"name": moon.name, "id": moon.id})
 
     return jsonify(moons_response)
-# What's the difference between returning make_response and not returning it? 
-    # Make response returns HTML and not JSON
-    # can be used as confirmation that something was deleted or returned back to us
 
-# use commit() for when we are updating/making changes to the data
-
-# db mgrate and flask upgrade commits everything that's been added to the model to the database table
